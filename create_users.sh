@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Script som skapar användare, mappar och en välkomstfil
-# Endast root får köra scriptet
-
 # Kontrollera att scriptet körs som root
 if [ "$EUID" -ne 0 ]; then
     echo "Fel: Detta script måste köras som root."
@@ -18,13 +15,13 @@ fi
 # Loopa igenom alla användarnamn
 for username in "$@"; do
 
-    # Skapa användaren med hemkatalog om den inte redan finns
+    # Skapa användaren om den inte redan finns
     if ! id "$username" >/dev/null 2>&1; then
         useradd -m "$username"
     fi
 
-    # Hitta användarens hemkatalog
-    home_dir=$(eval echo "~$username")
+    # Hemkatalog
+    home_dir="/home/$username"
 
     # Skapa undermappar
     mkdir -p "$home_dir/Documents"
