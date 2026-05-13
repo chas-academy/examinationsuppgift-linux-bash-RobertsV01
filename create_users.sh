@@ -20,8 +20,8 @@ for username in "$@"; do
         useradd -m "$username"
     fi
 
-    # Hemkatalog
-    home_dir="/home/$username"
+    # Hämta användarens hemkatalog
+    home_dir=$(eval echo "~$username")
 
     # Skapa undermappar
     mkdir -p "$home_dir/Documents"
@@ -31,7 +31,7 @@ for username in "$@"; do
     # Sätt ägare på hela hemkatalogen
     chown -R "$username:$username" "$home_dir"
 
-    # Sätt rättigheter (endast ägare)
+    # Sätt rättigheter (endast ägaren)
     chmod 700 "$home_dir/Documents"
     chmod 700 "$home_dir/Downloads"
     chmod 700 "$home_dir/Work"
@@ -40,7 +40,7 @@ for username in "$@"; do
     welcome_file="$home_dir/welcome.txt"
     echo "Välkommen $username" > "$welcome_file"
 
-    # Lista alla andra användare
+    # Lista alla andra användare i systemet
     awk -F: -v user="$username" '$1 != user { print $1 }' /etc/passwd >> "$welcome_file"
 
     # Sätt ägare och rättigheter för welcome.txt
