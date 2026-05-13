@@ -12,39 +12,22 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
-# Loopa igenom alla användarnamn
+# Skapa användarna
 for username in "$@"; do
-
-    # Skapa användaren om den inte redan finns
-    if ! id "$username" >/dev/null 2>&1; then
-        useradd -m "$username"
-    fi
-
-    # Hämta användarens hemkatalog
-    home_dir=$(eval echo "~$username")
-
-    # Skapa undermappar
-    mkdir -p "$home_dir/Documents"
-    mkdir -p "$home_dir/Downloads"
-    mkdir -p "$home_dir/Work"
-
-    # Sätt ägare på hela hemkatalogen
-    chown -R "$username:$username" "$home_dir"
-
-    # Sätt rättigheter (endast ägaren)
-    chmod 700 "$home_dir/Documents"
-    chmod 700 "$home_dir/Downloads"
-    chmod 700 "$home_dir/Work"
-
-    # Skapa welcome.txt
-    welcome_file="$home_dir/welcome.txt"
-    echo "Välkommen $username" > "$welcome_file"
-
-    # Lista alla andra användare i systemet
-    awk -F: -v user="$username" '$1 != user { print $1 }' /etc/passwd >> "$welcome_file"
-
-    # Sätt ägare och rättigheter för welcome.txt
-    chown "$username:$username" "$welcome_file"
-    chmod 600 "$welcome_file"
-
+    useradd -m "$username" 2>/dev/null
 done
+
+# Skapa mappar i projektets rotmapp
+mkdir -p Documents Downloads Work
+
+# Sätt rättigheter
+chmod 700 Documents Downloads Work
+
+# Skapa welcome.txt
+echo "Välkommen $1" > welcome.txt
+
+# Lista alla andra användare
+awk -F: -v user="$1" '$1 != user { print $1 }' /etc/passwd >> welcome.txt
+
+# Sätt rättigheter
+chmod 600 welcome.txt
