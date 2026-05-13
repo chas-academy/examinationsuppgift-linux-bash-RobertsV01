@@ -18,23 +18,23 @@ fi
 # Loopa igenom alla användarnamn
 for username in "$@"; do
 
-    # Skapa användaren om den inte redan finns
-    if ! id "$username" &>/dev/null; then
+    # Skapa användaren med hemkatalog
+    if ! id "$username" >/dev/null 2>&1; then
         useradd -m "$username"
     fi
 
-    # Hemkatalog
-    home_dir="/home/$username"
+    # Hämta användarens riktiga hemkatalog från systemet
+    home_dir=$(eval echo "~$username")
 
     # Skapa mappar
     mkdir -p "$home_dir/Documents"
     mkdir -p "$home_dir/Downloads"
     mkdir -p "$home_dir/Work"
 
-    # Sätt ägare
+    # Sätt ägare på hela hemkatalogen
     chown -R "$username:$username" "$home_dir"
 
-    # Sätt rättigheter
+    # Endast ägaren får läsa, skriva och öppna mapparna
     chmod 700 "$home_dir/Documents"
     chmod 700 "$home_dir/Downloads"
     chmod 700 "$home_dir/Work"
@@ -46,7 +46,7 @@ for username in "$@"; do
     # Lista alla andra användare
     awk -F: -v user="$username" '$1 != user { print $1 }' /etc/passwd >> "$welcome_file"
 
-    # Sätt rättigheter för welcome.txt
+    # Sätt ägare och rättigheter på filen
     chown "$username:$username" "$welcome_file"
     chmod 600 "$welcome_file"
 
